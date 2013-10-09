@@ -17,7 +17,14 @@
     "jwt",
     "decode"
   ],
-  "author": "Jonathan Blair",
+  "author": {
+    "name": "Jonathan Blair",
+    "email": "j.blair@blairforce1.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/blairforce1/node-jwt.git"
+  },
   "license": "MIT",
   "dependencies": {},
   "devDependencies": {
