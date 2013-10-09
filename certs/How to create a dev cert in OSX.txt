@@ -1,0 +1,19 @@
+How to create a dev cert in OSX:
+
+openssl genrsa -des3 -out server.pass.key 2048
+openssl rsa -in server.pass.key -out server.key
+
+# If you want to create using a Certificate Request, use the following two lines...
+# openssl req -nodes -new -key server.key -out server.csr
+# openssl x509 -req -days 365 -in server.csr -signkey server.key -out server.crt
+
+# ...Otherwise, just create the certificate directly
+openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout server.key -out server.crt
+
+# If you need a .cer file (e.g. Azure management Certificate), just rename the .der to a .cer file
+openssl x509 -in server.crt -out server.der -outform DER
+openssl x509 -in server.der -inform DER -out server.pem -outform PEM
+
+# Create the pfx (e.g. for upload to Azure ACS)
+openssl pkcs12 -export -out server.pfx -inkey server.key -in server.crt 
+
