@@ -1,0 +1,4 @@
+--require should
+--require blanket
+--reporter spec
+--ui bdd

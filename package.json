@@ -1,0 +1,33 @@
+{
+  "name": "node-jwt",
+  "version": "0.0.1",
+  "description": "Library for parsing JSON Web Tokens (JWT)",
+  "main": "./lib/jwt.js",
+  "scripts": {
+    "test": "grunt",
+    "blanket": {
+      "pattern": "node-jwt/lib/"
+    },
+    "travis-cov": {
+      "threshold": 95
+    }
+  },
+  "keywords": [
+    "ws-federation",
+    "jwt",
+    "decode"
+  ],
+  "author": "Jonathan Blair",
+  "license": "MIT",
+  "dependencies": {},
+  "devDependencies": {
+    "mocha": "~1.13.0",
+    "should": "~1.3.0",
+    "grunt": "~0.4.1",
+    "grunt-contrib-jshint": "~0.6.4",
+    "matchdep": "~0.2.0",
+    "grunt-mocha-test": "~0.7.0",
+    "blanket": "~1.1.5",
+    "travis-cov": "~0.2.4"
+  }
+}
