@@ -1,4 +1,5 @@
 # node-jwt
+[![Build Status](https://travis-ci.org/blairforce1/node-jwt.png)](https://travis-ci.org/blairforce1/node-jwt)
 A lightweight library for parsing JSON Web Tokens (JWT) - as issued by Microsoft Azure ACS. Implements JSON Web Signature (JWS) Compact.
 
 Loosely based upon the following specifications:
