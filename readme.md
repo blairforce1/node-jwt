@@ -10,8 +10,9 @@ Loosely based upon the following specifications:
 
 ## Installation
 
-$ npm install node-jwt
+```
+$ npm install node-jwt --save
+```
 
-## License and Copyright
-Copyright (c) 2013 Jonathan Blair.
-Licensed under the MIT license.
+## Instructions for use
+For an example for how to use this library, see the node-wsfed library on GitHub: https://github.com/blairforce1/node-wsfed
