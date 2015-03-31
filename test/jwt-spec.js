@@ -2,14 +2,15 @@
 
 var jwt = require('../lib/jwt'),
 	fs = require('fs'),
-	path = require('path');
+	path = require('path'),
+	base64Url = require('../lib/base64Url');
 
 describe('JSON Web Token', function() {
 	describe('using Symmetric Key', function() {
 		var rawToken = 'ZXlKMGVYQWlPaUpLVjFRaUxDSmhiR2NpT2lKSVV6STFOaUo5LmV5SnBjM01pT2lKcWIyNXVlV0lpTENKaGRXUWlPaUoxY200NllYVmthV1Z1WTJVaUxDSmxlSEFpT2pFek1EQTRNVGt6T0RBc0ltaDBkSEE2THk5bGVHRnRjR3hsTG1OdmJTOXBjMTl5YjI5MElqcDBjblZsZlEuUkRWMDVMalZFMzgzNXY0NFFyNjZ0dG03ek9zWGV1Qm5tVUlSMC02YkZGTQ';
 		var key = 'pSXeMohHqCpxD3bFrpDLFx9JtKZTDcvn0Tfyd2HZFhw=';
 		var token = {
-				header: { typ: 'JWT', alg: 'HS256' },
+				header: { typ: 'JWT' },
 				payload: { iss: 'jonnyb', aud: 'urn:audience', exp: 1300819380, "http://example.com/is_root": true }
 			};
 
@@ -28,7 +29,7 @@ describe('JSON Web Token', function() {
 			});
 
 			it('should validate signature', function() {
-				jwt.isSignatureValid(decodedToken, key).should.be.true;
+				jwt.isSignatureValid(decodedToken, 'HS256', key).should.be.true;
 			});
 
 			it ('should validate the audience', function() {
@@ -39,11 +40,30 @@ describe('JSON Web Token', function() {
 			it('should validate expiry', function() {
 				jwt.isExpired(decodedToken).should.be.true;
 			});
+
+			describe('when algorithms do not match', function() {
+				it('should not validate the signature', function() {
+					jwt.isSignatureValid(decodedToken, 'RS256', key).should.be.false;
+				});
+			});
+
+			describe('when signatures do not match', function() {
+				var badDecodedToken =  {
+						header: { typ: 'JWT', alg: 'HS256' },
+						payload: { iss: 'jonnyb', aud: 'urn:audience', exp: 1300819380, 'http://example.com/is_root': true }, 
+						signature: 'TOO-SHORT',
+						bytesToSign: 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJqb25ueWIiLCJhdWQiOiJ1cm46YXVkaWVuY2UiLCJleHAiOjEzMDA4MTkzODAsImh0dHA6Ly9leGFtcGxlLmNvbS9pc19yb290Ijp0cnVlfQ'
+					};
+
+				it('should not validate the signature', function() {
+					jwt.isSignatureValid(badDecodedToken, 'HS256', key).should.be.false;
+				});
+			});
 		});
 
 		describe('when encoding', function() {
 			it('should encode and sign the token', function() {
-				var encodedToken = jwt.encodeToken(token, key);
+				var encodedToken = jwt.encodeToken(token, 'HS256', key);
 				encodedToken.should.equal(rawToken);
 			});
 		});
@@ -54,7 +74,7 @@ describe('JSON Web Token', function() {
 		var key = fs.readFileSync(path.resolve(path.join(__dirname, '..', 'certs', 'server.pem')));
 		var privateKey = fs.readFileSync(path.resolve(path.join(__dirname, '..', 'certs', 'server.key')));
 		var token = {
-				header: { typ: 'JWT', alg: 'RS256' },
+				header: { typ: 'JWT' },
 				payload: { iss: 'jonnyb', aud: 'urn:audience', exp: 1300819380, "http://example.com/is_root": true }
 			};
 
@@ -73,15 +93,38 @@ describe('JSON Web Token', function() {
 			});
 
 			it('should validate signature', function() {
-				jwt.isSignatureValid(decodedToken, key).should.be.true;
+				jwt.isSignatureValid(decodedToken, 'RS256', key).should.be.true;
+			});
+
+			describe('when algorithms do not match', function() {
+				it('should not validate the signature', function() {
+					jwt.isSignatureValid(decodedToken, 'HS256', key).should.be.false;
+				});
 			});
 		});
 
+
+
 		describe('when encoding', function() {
 			it('should encode and sign the token', function() {
-				var encodedToken = jwt.encodeToken(token, privateKey);
+				var encodedToken = jwt.encodeToken(token, 'RS256', privateKey);
 				encodedToken.should.equal(rawToken);
 			});
+		});
+	});
+
+	describe('When a hacker tries to exploit RS256 key', function() {
+		var key = fs.readFileSync(path.resolve(path.join(__dirname, '..', 'certs', 'server.pem')));
+		var token = {
+				header: { typ: 'JWT' },
+				payload: { iss: 'jonnyb', aud: 'urn:audience', exp: 1300819380, "http://example.com/is_root": true }
+			};
+
+		var fakedToken = jwt.encodeToken(token, 'HS256', base64Url.encode(key));
+
+		it('should not validate the signature', function() {
+			var decodedToken = jwt.decodeToken(fakedToken);
+			jwt.isSignatureValid(decodedToken, 'RS256', key).should.be.false;
 		});
 	});
 });
